@@ -30,7 +30,7 @@ async function ensureReady() {
 function routeOnce(input: RouteInput): Route[] {
   const Avoid = AvoidLib.getInstance()
 
-  const router = new Avoid.Router(0)
+  const router = new Avoid.Router(Avoid.PolyLineRouting | Avoid.OrthogonalRouting)
 
   const shapeBuffer = input.options?.shapeBuffer ?? 8
   const hateCrossings = input.options?.hateCrossings ?? true
@@ -59,10 +59,15 @@ function routeOnce(input: RouteInput): Route[] {
 
     const srcEnd = new Avoid.ConnEnd(new Avoid.Point(srcPort.point.x, srcPort.point.y))
     const dstEnd = new Avoid.ConnEnd(new Avoid.Point(dstPort.point.x, dstPort.point.y))
-    const conn = new Avoid.ConnRef(router, srcEnd, dstEnd)
+    const conn = new Avoid.ConnRef(router)
+    conn.setSourceEndpoint(srcEnd)
+    conn.setDestEndpoint(dstEnd)
     conn.setRoutingType(Avoid.OrthogonalRouting)
     conn.setHateCrossings(hateCrossings)
     connectors.push({ edgeId: edge.id, conn, srcEnd, dstEnd })
+  }
+  if (input.edges.length > 0 && connectors.length === 0) {
+    throw new Error('No connectors created')
   }
 
   router.processTransaction()
@@ -74,27 +79,13 @@ function routeOnce(input: RouteInput): Route[] {
     for (let p = 0; p < n; p += 1) {
       const pt = polyline.get_ps(p)
       points.push({ x: pt.x, y: pt.y })
-      Avoid.destroy(pt)
     }
 
-    Avoid.destroy(polyline)
     routes.push({ edgeId, points })
   }
-
-  for (const { conn, srcEnd, dstEnd } of connectors) {
-    router.deleteConnector(conn)
-    Avoid.destroy(conn)
-    Avoid.destroy(srcEnd)
-    Avoid.destroy(dstEnd)
+  if (connectors.length > 0 && routes.every((r) => r.points.length === 0)) {
+    throw new Error('No route returned (0 points)')
   }
-
-  for (const { rect, shape } of shapes.values()) {
-    router.deleteShape(shape)
-    Avoid.destroy(shape)
-    Avoid.destroy(rect)
-  }
-
-  Avoid.destroy(router)
   return routes
 }
 

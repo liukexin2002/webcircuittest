@@ -28,13 +28,16 @@ export function RoutingDemo() {
   ])
 
   const [selectedPortId, setSelectedPortId] = useState<string | null>(null)
-  const [edges, setEdges] = useState<Edge[]>([{ id: 'e1', sourcePortId: 'a.out', targetPortId: 'b.in' }])
+  const [edges, setEdges] = useState<Edge[]>([])
 
   const router = useMemo(() => new LibavoidRouter(), [])
 
   useEffect(() => () => router.dispose(), [router])
 
   const input: RouteInput = useMemo(() => {
+    const shapeBuffer = 12
+    const portGap = shapeBuffer + 16
+
     const nodes = devices.map((d) => ({
       id: d.id,
       rect: { x: d.x, y: d.y, width: d.width, height: d.height },
@@ -48,7 +51,7 @@ export function RoutingDemo() {
       ports.push({
         id: 'a.out',
         nodeId: 'a',
-        point: { x: devA.x + devA.width + 10, y: devA.y + devA.height / 2 },
+        point: { x: devA.x + devA.width + portGap, y: devA.y + devA.height / 2 },
         side: 'east',
       })
     }
@@ -56,7 +59,7 @@ export function RoutingDemo() {
       ports.push({
         id: 'b.in',
         nodeId: 'b',
-        point: { x: devB.x - 10, y: devB.y + devB.height / 2 },
+        point: { x: devB.x - portGap, y: devB.y + devB.height / 2 },
         side: 'west',
       })
     }
@@ -65,7 +68,7 @@ export function RoutingDemo() {
       nodes,
       ports,
       edges,
-      options: { shapeBuffer: 12, hateCrossings: true },
+      options: { shapeBuffer, hateCrossings: true },
     }
   }, [devices, edges])
 
@@ -131,14 +134,22 @@ export function RoutingDemo() {
           setSelectedPortId(null)
         }}
       >
-        {route?.points?.length ? (
-          <path d={toPath(route.points)} fill="none" stroke="hsl(var(--primary))" strokeWidth={3} />
-        ) : null}
+        <text x={16} y={24} fontSize={12} fill="hsl(var(--muted-foreground))">
+          route points: {route?.points?.length ?? 0}
+          {' | '}
+          selected: {selectedPortId ?? 'none'}
+          {' | '}
+          ports: {input.ports.map((p) => p.id).join(',')}
+          {' | '}
+          edge: {input.edges.map((e) => `${e.sourcePortId}->${e.targetPortId}`).join(',')}
+          {error ? ` | error: ${error}` : ''}
+        </text>
 
         {devices.map((d) => {
-          const pinX = d.id === 'a' ? d.x + d.width : d.x
-          const pinY = d.y + d.height / 2
           const portId = d.id === 'a' ? 'a.out' : 'b.in'
+          const port = portById.get(portId)
+          const pinX = port?.point.x ?? (d.id === 'a' ? d.x + d.width : d.x)
+          const pinY = port?.point.y ?? (d.y + d.height / 2)
           const isSelected = selectedPortId === portId
           return (
             <g
@@ -176,14 +187,13 @@ export function RoutingDemo() {
                 data-pin="true"
                 cx={pinX}
                 cy={pinY}
-                r={7}
-                fill="hsl(var(--primary))"
-                stroke={isSelected ? 'hsl(var(--ring))' : 'hsl(var(--background))'}
-                strokeWidth={2}
+                r={9}
+                fill={isSelected ? 'hsl(var(--ring))' : 'hsl(var(--primary))'}
+                stroke="hsl(var(--background))"
+                strokeWidth={3}
                 style={{ cursor: 'pointer' }}
                 onPointerDown={(e) => {
                   e.stopPropagation()
-                  const port = portById.get(portId)
                   if (!port) return
                   setError(null)
                   setRoute(null)
@@ -198,10 +208,50 @@ export function RoutingDemo() {
             </g>
           )
         })}
+
+        {route?.points?.length ? (
+          <path
+            d={toPath(route.points)}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth={3}
+            pointerEvents="none"
+          />
+        ) : null}
       </svg>
 
+      <div className="absolute top-2 right-2 flex gap-2">
+        <button
+          type="button"
+          className="h-7 rounded bg-primary px-2 text-xs text-primary-foreground"
+          onClick={() => {
+            setError(null)
+            setRoute(null)
+            setSelectedPortId(null)
+            setEdges([{ id: 'e1', sourcePortId: 'a.out', targetPortId: 'b.in' }])
+          }}
+        >
+          自动连线
+        </button>
+        <button
+          type="button"
+          className="h-7 rounded border bg-background px-2 text-xs text-foreground"
+          onClick={() => {
+            setError(null)
+            setRoute(null)
+            setSelectedPortId(null)
+            setEdges([])
+          }}
+        >
+          清除连线
+        </button>
+      </div>
+
       <div className="absolute bottom-2 left-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        拖动器件或点击引脚连线{error ? `（路由失败：${error}）` : ''}
+        {selectedPortId
+          ? `已选中起点：${selectedPortId}，请点击另一个引脚完成连线（点数：${route?.points?.length ?? 0}）`
+          : `点击一个引脚作为起点，再点击另一个引脚作为终点（点数：${route?.points?.length ?? 0}）`}
+        {error ? `（路由失败：${error}）` : ''}
       </div>
     </div>
   )
