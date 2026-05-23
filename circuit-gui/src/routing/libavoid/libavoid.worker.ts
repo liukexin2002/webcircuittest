@@ -49,7 +49,7 @@ function routeOnce(input: RouteInput): Route[] {
 
   const portById = new Map(input.ports.map((p) => [p.id, p]))
 
-  const connectors: Array<{ edgeId: string; conn: any }> = []
+  const connectors: Array<{ edgeId: string; conn: any; srcEnd: any; dstEnd: any }> = []
   const routes: Route[] = []
 
   for (const edge of input.edges) {
@@ -62,10 +62,7 @@ function routeOnce(input: RouteInput): Route[] {
     const conn = new Avoid.ConnRef(router, srcEnd, dstEnd)
     conn.setRoutingType(Avoid.OrthogonalRouting)
     conn.setHateCrossings(hateCrossings)
-    connectors.push({ edgeId: edge.id, conn })
-
-    Avoid.destroy(srcEnd)
-    Avoid.destroy(dstEnd)
+    connectors.push({ edgeId: edge.id, conn, srcEnd, dstEnd })
   }
 
   router.processTransaction()
@@ -84,9 +81,11 @@ function routeOnce(input: RouteInput): Route[] {
     routes.push({ edgeId, points })
   }
 
-  for (const { conn } of connectors) {
+  for (const { conn, srcEnd, dstEnd } of connectors) {
     router.deleteConnector(conn)
     Avoid.destroy(conn)
+    Avoid.destroy(srcEnd)
+    Avoid.destroy(dstEnd)
   }
 
   for (const { rect, shape } of shapes.values()) {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { Point, Route, RouteInput } from '@/routing'
+import type { Edge, Point, Port, Route, RouteInput } from '@/routing'
 import { LibavoidRouter } from '@/routing'
 
 type Device = {
@@ -27,6 +27,9 @@ export function RoutingDemo() {
     { id: 'b', name: '电感', x: 420, y: 240, width: 140, height: 90 },
   ])
 
+  const [selectedPortId, setSelectedPortId] = useState<string | null>(null)
+  const [edges, setEdges] = useState<Edge[]>([{ id: 'e1', sourcePortId: 'a.out', targetPortId: 'b.in' }])
+
   const router = useMemo(() => new LibavoidRouter(), [])
 
   useEffect(() => () => router.dispose(), [router])
@@ -37,19 +40,34 @@ export function RoutingDemo() {
       rect: { x: d.x, y: d.y, width: d.width, height: d.height },
     }))
 
-    const portA: Point = { x: devices[0].x + devices[0].width + 10, y: devices[0].y + devices[0].height / 2 }
-    const portB: Point = { x: devices[1].x - 10, y: devices[1].y + devices[1].height / 2 }
+    const devA = devices.find((d) => d.id === 'a')
+    const devB = devices.find((d) => d.id === 'b')
+
+    const ports: Port[] = []
+    if (devA) {
+      ports.push({
+        id: 'a.out',
+        nodeId: 'a',
+        point: { x: devA.x + devA.width + 10, y: devA.y + devA.height / 2 },
+        side: 'east',
+      })
+    }
+    if (devB) {
+      ports.push({
+        id: 'b.in',
+        nodeId: 'b',
+        point: { x: devB.x - 10, y: devB.y + devB.height / 2 },
+        side: 'west',
+      })
+    }
 
     return {
       nodes,
-      ports: [
-        { id: 'a.out', nodeId: 'a', point: portA, side: 'east' },
-        { id: 'b.in', nodeId: 'b', point: portB, side: 'west' },
-      ],
-      edges: [{ id: 'e1', sourcePortId: 'a.out', targetPortId: 'b.in' }],
+      ports,
+      edges,
       options: { shapeBuffer: 12, hateCrossings: true },
     }
-  }, [devices])
+  }, [devices, edges])
 
   const [route, setRoute] = useState<Route | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -81,6 +99,8 @@ export function RoutingDemo() {
 
   const dragRef = useRef<{ id: string; dx: number; dy: number } | null>(null)
 
+  const portById = useMemo(() => new Map(input.ports.map((p) => [p.id, p])), [input.ports])
+
   return (
     <div className="relative w-full h-full rounded-md border bg-muted/10 overflow-hidden">
       <svg
@@ -105,6 +125,11 @@ export function RoutingDemo() {
         onPointerCancel={() => {
           dragRef.current = null
         }}
+        onPointerDown={(e) => {
+          const target = e.target as Element | null
+          if (target?.closest?.('[data-pin="true"]')) return
+          setSelectedPortId(null)
+        }}
       >
         {route?.points?.length ? (
           <path d={toPath(route.points)} fill="none" stroke="hsl(var(--primary))" strokeWidth={3} />
@@ -113,10 +138,14 @@ export function RoutingDemo() {
         {devices.map((d) => {
           const pinX = d.id === 'a' ? d.x + d.width : d.x
           const pinY = d.y + d.height / 2
+          const portId = d.id === 'a' ? 'a.out' : 'b.in'
+          const isSelected = selectedPortId === portId
           return (
             <g
               key={d.id}
               onPointerDown={(e) => {
+                const target = e.target as Element | null
+                if (target?.closest?.('[data-pin="true"]')) return
                 e.currentTarget.setPointerCapture(e.pointerId)
                 const svg = (e.currentTarget.ownerSVGElement ?? e.currentTarget) as SVGSVGElement
                 const rect = svg.getBoundingClientRect()
@@ -143,16 +172,37 @@ export function RoutingDemo() {
               >
                 {d.name}
               </text>
-              <circle cx={pinX} cy={pinY} r={6} fill="hsl(var(--primary))" />
+              <circle
+                data-pin="true"
+                cx={pinX}
+                cy={pinY}
+                r={7}
+                fill="hsl(var(--primary))"
+                stroke={isSelected ? 'hsl(var(--ring))' : 'hsl(var(--background))'}
+                strokeWidth={2}
+                style={{ cursor: 'pointer' }}
+                onPointerDown={(e) => {
+                  e.stopPropagation()
+                  const port = portById.get(portId)
+                  if (!port) return
+                  setError(null)
+                  setRoute(null)
+                  setSelectedPortId((prev) => {
+                    if (!prev) return port.id
+                    if (prev === port.id) return null
+                    setEdges([{ id: 'e1', sourcePortId: prev, targetPortId: port.id }])
+                    return null
+                  })
+                }}
+              />
             </g>
           )
         })}
       </svg>
 
       <div className="absolute bottom-2 left-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
-        拖动器件测试自动避障正交连线{error ? `（路由失败：${error}）` : ''}
+        拖动器件或点击引脚连线{error ? `（路由失败：${error}）` : ''}
       </div>
     </div>
   )
 }
-
