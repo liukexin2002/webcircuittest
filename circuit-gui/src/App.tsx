@@ -1,11 +1,7 @@
-import { EditorProvider, Editor } from './presentation'
+import { Editor } from './presentation'
 
 function App() {
-  return (
-    <EditorProvider>
-      <Editor />
-    </EditorProvider>
-  )
+  return <Editor />
 }
 
 export default App

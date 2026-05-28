@@ -1,17 +1,16 @@
 /**
  * 主编辑器组件
+ * 简洁的左右分栏布局
  */
 
+import { DevicePalette } from './DevicePalette';
 import { Canvas } from './Canvas';
-import { Toolbar } from './Toolbar';
 
 export function Editor() {
   return (
-    <div className="flex flex-col h-screen w-full">
-      <Toolbar />
-      <div className="flex-1">
-        <Canvas />
-      </div>
+    <div className="flex h-screen w-full">
+      <DevicePalette />
+      <Canvas />
     </div>
   );
 }
