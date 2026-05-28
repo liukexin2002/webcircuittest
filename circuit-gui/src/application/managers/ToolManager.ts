@@ -3,7 +3,7 @@
  * 管理编辑器的各种工具状态
  */
 
-import type { Tool, ToolType } from '../types';
+import type { Tool, ToolType } from '../types/index';
 
 export class ToolManager {
   private tools: Map<ToolType, Tool> = new Map();

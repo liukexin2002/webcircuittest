@@ -1,147 +1,98 @@
 /**
  * Canvas 组件
- * 核心的 SVG 渲染组件
+ * 支持拖放放置器件的画布
  */
 
-import { useRef, type MouseEvent } from 'react';
-import { useEditor } from '../context/EditorContext';
+import { useRef, type DragEvent } from 'react';
 import { useEditorStore } from '../hooks/useEditorStore';
-import type { Point } from '../../domain';
-import { GeometryUtils } from '../../infrastructure';
+import { PlacedDevice, type PlacedDeviceData } from './PlacedDevice';
+import { getDeviceSymbol } from '../lib/DeviceSymbols';
+import { IdGenerator } from '../../infrastructure';
 
 export function Canvas() {
-  const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { editorService } = useEditor();
-  const { circuit, selectedIds, viewport } = useEditorStore();
+  const { viewport, placedDevices, selectedDeviceId, addPlacedDevice, movePlacedDevice, selectDevice, clearSelection } = useEditorStore();
 
-  const screenToWorld = (clientX: number, clientY: number): Point => {
-    const container = containerRef.current;
-    if (!container) return { x: clientX, y: clientY };
-    const rect = container.getBoundingClientRect();
-    return {
-      x: (clientX - rect.left - viewport.offset.x) / viewport.scale,
-      y: (clientY - rect.top - viewport.offset.y) / viewport.scale
-    };
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
   };
 
-  const handlePointerDown = (e: MouseEvent) => {
-    const worldPos = screenToWorld(e.clientX, e.clientY);
-  };
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
 
-  const handlePointerMove = (e: MouseEvent) => {
-    const worldPos = screenToWorld(e.clientX, e.clientY);
-  };
+    try {
+      const data = e.dataTransfer.getData('application/json');
+      const deviceSymbol = JSON.parse(data);
 
-  const handlePointerUp = () => {
-  };
+      const container = containerRef.current;
+      if (!container) return;
 
-  const renderDevices = () => {
-    if (!circuit) return null;
+      const rect = container.getBoundingClientRect();
+      const x = (e.clientX - rect.left - viewport.offset.x) / viewport.scale;
+      const y = (e.clientY - rect.top - viewport.offset.y) / viewport.scale;
 
-    return Array.from(circuit.devices.values()).map((device) => {
-      const isSelected = selectedIds.has(device.id);
+      const symbol = getDeviceSymbol(deviceSymbol.id);
+      if (!symbol) return;
 
-      return (
-        <g key={device.id} transform={`translate(${device.position.x}, ${device.position.y})`}>
-          <rect
-            x={-30}
-            y={-20}
-            width={60}
-            height={40}
-            fill={isSelected ? '#4ade80' : '#e0e0e0'}
-            stroke={isSelected ? '#22c55e' : '#999'}
-            strokeWidth={isSelected ? 3 : 1}
-            rx={4}
-          />
-          <text
-              y={5}
-              textAnchor="middle"
-              fontSize={12}
-              fontFamily="Arial"
-              fill="#333"
-            >
-              {device.label}
-          </text>
-          {device.pins.map((pin) => (
-            <circle
-              key={pin.id}
-              cx={pin.position.x}
-              cy={pin.position.y}
-              r={4}
-              fill="#333"
-            />
-          ))}
-        </g>
-      );
-    });
-  };
+      const deviceCount = placedDevices.filter(d => d.deviceType === deviceSymbol.id).length + 1;
+      const label = `${symbol.prefix}${deviceCount}`;
 
-  const renderGrid = () => {
-    if (!circuit || !circuit.settings.showGrid) return null;
+      const newDevice: PlacedDeviceData = {
+        id: IdGenerator.generateDeviceId(),
+        deviceType: deviceSymbol.id,
+        position: { x, y },
+        label
+      };
 
-    const gridSize = circuit.settings.gridSize;
-    const width = circuit.settings.size.width;
-    const height = circuit.settings.size.height;
-
-    const lines = [];
-
-    for (let x = -width / 2; x <= width / 2; x += gridSize) {
-      lines.push(
-        <line
-          key={`v-${x}`}
-          x1={x}
-          y1={-height / 2}
-          x2={x}
-          y2={height / 2}
-          stroke="#ddd"
-          strokeWidth={0.5}
-        />
-      );
+      addPlacedDevice(newDevice);
+      selectDevice(newDevice.id);
+    } catch (error) {
+      console.error('Failed to drop device:', error);
     }
+  };
 
-    for (let y = -height / 2; y <= height / 2; y += gridSize) {
-      lines.push(
-        <line
-          key={`h-${y}`}
-          x1={-width / 2}
-          y1={y}
-          x2={width / 2}
-          y2={y}
-          stroke="#ddd"
-          strokeWidth={0.5}
-        />
-      );
-    }
-
-    return <g>{lines}</g>;
+  const handleCanvasClick = () => {
+    clearSelection();
   };
 
   return (
     <div
       ref={containerRef}
+      className="flex-1 bg-white relative overflow-hidden"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onClick={handleCanvasClick}
       style={{
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        backgroundColor: '#f0f0f0'
+        backgroundImage: `
+          linear-gradient(to right, #f0f0f0 1px, transparent 1px),
+          linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)
+        `,
+        backgroundSize: '20px 20px'
       }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
     >
       <svg
-        ref={svgRef}
+        className="w-full h-full"
         style={{
-          width: '100%',
-          height: '100%'
+          transform: `translate(${viewport.offset.x}px, ${viewport.offset.y}px) scale(${viewport.scale})`
         }}
       >
-        <g
-          transform={`translate(${viewport.offset.x}, ${viewport.offset.y}) scale(${viewport.scale})`}
-        >
-          {renderGrid()}
-          {renderDevices()}
+        <g transform="translate(400, 300)">
+          {placedDevices.map((device) => {
+            const symbol = getDeviceSymbol(device.deviceType);
+            if (!symbol) return null;
+
+            return (
+              <PlacedDevice
+                key={device.id}
+                device={device}
+                symbol={symbol}
+                isSelected={selectedDeviceId === device.id}
+                onSelect={selectDevice}
+                onMove={movePlacedDevice}
+              />
+            );
+          })}
         </g>
       </svg>
     </div>

@@ -3,7 +3,8 @@
  */
 
 export * from './components/Canvas';
-export * from './components/Toolbar';
 export * from './components/Editor';
-export * from './context/EditorContext';
+export * from './components/DevicePalette';
+export * from './components/PlacedDevice';
 export * from './hooks/useEditorStore';
+export * from './lib/DeviceSymbols';

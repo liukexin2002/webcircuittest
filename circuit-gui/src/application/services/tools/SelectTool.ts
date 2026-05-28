@@ -2,8 +2,8 @@
  * 选择工具 - 基础工具实现
  */
 
-import type { Tool, ToolContext } from '../types';
-import { ToolType } from '../types';
+import type { Tool, ToolContext } from '../../types';
+import { ToolType } from '../../types';
 
 export class SelectTool implements Tool {
   public type = ToolType.SELECT;

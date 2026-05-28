@@ -48,7 +48,7 @@ export class Pin {
   /**
    * 计算相对于设备原点的位置
    */
-  getRelativePosition(devicePosition(devicePosition: Point): Point {
+  getRelativePosition(devicePosition: Point): Point {
     return {
       x: this.position.x + devicePosition.x,
       y: this.position.y + devicePosition.y

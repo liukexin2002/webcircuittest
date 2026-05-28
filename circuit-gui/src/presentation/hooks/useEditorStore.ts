@@ -12,6 +12,7 @@ import {
   EventEmitter,
   UndoRedoManager
 } from '../..';
+import type { PlacedDeviceData } from '../components/PlacedDevice';
 
 interface EditorState {
   circuit: Circuit | null;
@@ -26,6 +27,9 @@ interface EditorState {
   eventEmitter: EventEmitter | null;
   undoRedoManager: UndoRedoManager | null;
 
+  placedDevices: PlacedDeviceData[];
+  selectedDeviceId: string | null;
+
   setCircuit: (circuit: Circuit) => void;
   setSelectedIds: (ids: Set<string>) => void;
   setActiveTool: (tool: string) => void;
@@ -34,6 +38,12 @@ interface EditorState {
   setToolManager: (manager: ToolManager) => void;
   setEventEmitter: (emitter: EventEmitter) => void;
   setUndoRedoManager: (manager: UndoRedoManager) => void;
+
+  addPlacedDevice: (device: PlacedDeviceData) => void;
+  removePlacedDevice: (id: string) => void;
+  movePlacedDevice: (id: string, position: Point) => void;
+  selectDevice: (id: string | null) => void;
+  clearSelection: () => void;
 
   canUndo: () => boolean;
   canRedo: () => boolean;
@@ -54,6 +64,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   eventEmitter: null,
   undoRedoManager: null,
 
+  placedDevices: [],
+  selectedDeviceId: null,
+
   setCircuit: (circuit) => set({ circuit }),
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   setActiveTool: (tool) => set({ activeTool: tool }),
@@ -65,6 +78,28 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setToolManager: (manager) => set({ toolManager: manager }),
   setEventEmitter: (emitter) => set({ eventEmitter: emitter }),
   setUndoRedoManager: (manager) => set({ undoRedoManager: manager }),
+
+  addPlacedDevice: (device) =>
+    set((state) => ({
+      placedDevices: [...state.placedDevices, device]
+    })),
+
+  removePlacedDevice: (id) =>
+    set((state) => ({
+      placedDevices: state.placedDevices.filter((d) => d.id !== id),
+      selectedDeviceId: state.selectedDeviceId === id ? null : state.selectedDeviceId
+    })),
+
+  movePlacedDevice: (id, position) =>
+    set((state) => ({
+      placedDevices: state.placedDevices.map((d) =>
+        d.id === id ? { ...d, position } : d
+      )
+    })),
+
+  selectDevice: (id) => set({ selectedDeviceId: id }),
+
+  clearSelection: () => set({ selectedDeviceId: null }),
 
   canUndo: () => get().undoRedoManager?.canUndo() ?? false,
   canRedo: () => get().undoRedoManager?.canRedo() ?? false,
