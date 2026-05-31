@@ -36,3 +36,16 @@ export enum DeviceRotation {
   Deg180 = 180,
   Deg270 = 270
 }
+
+export enum PinDirection {
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west'
+}
+
+export enum ConnectionStyle {
+  Solid = 'solid',
+  Dashed = 'dashed',
+  Dotted = 'dotted'
+}

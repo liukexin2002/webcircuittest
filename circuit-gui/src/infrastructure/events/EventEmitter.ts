@@ -3,7 +3,7 @@
  * 用于层间通信和组件间联动
  */
 
-import type { DomainEvent, DomainEventCallback } from '../../domain';
+import type { DomainEvent } from '../../domain';
 
 type EventCallback = (data: any) => void;
 
@@ -14,23 +14,23 @@ export class EventEmitter {
   /**
    * 订阅事件
    */
-  on<T = any>(eventName: string, callback: DomainEventCallback<T>): () => void {
+  on(eventName: string, callback: EventCallback): () => void {
     if (!this.listeners.has(eventName)) {
       this.listeners.set(eventName, new Set());
     }
-    this.listeners.get(eventName)!.add(callback as EventCallback);
-    return () => this.off(eventName, callback as EventCallback);
+    this.listeners.get(eventName)!.add(callback);
+    return () => this.off(eventName, callback);
   }
 
   /**
    * 订阅一次性事件
    */
-  once<T = any>(eventName: string, callback: DomainEventCallback<T>): () => void {
+  once(eventName: string, callback: EventCallback): () => void {
     if (!this.onceListeners.has(eventName)) {
       this.onceListeners.set(eventName, new Set());
     }
-    this.onceListeners.get(eventName)!.add(callback as EventCallback);
-    return () => this.off(eventName, callback as EventCallback);
+    this.onceListeners.get(eventName)!.add(callback);
+    return () => this.off(eventName, callback);
   }
 
   /**

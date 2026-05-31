@@ -5,12 +5,14 @@
 
 import { DevicePalette } from './DevicePalette';
 import { Canvas } from './Canvas';
+import { Toolbar } from './Toolbar';
 
 export function Editor() {
   return (
     <div className="flex h-screen w-full">
       <DevicePalette />
       <Canvas />
+      <Toolbar />
     </div>
   );
 }

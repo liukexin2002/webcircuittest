@@ -4,15 +4,24 @@
  */
 
 import { create } from 'zustand';
-import type { Point } from '../../domain';
+import type { Point, Id } from '../../domain';
 import {
   Circuit,
   EditorService,
   ToolManager,
   EventEmitter,
-  UndoRedoManager
+  UndoRedoManager,
+  Net
 } from '../..';
+import type { Connection as ConnectionType } from '../../domain';
 import type { PlacedDeviceData } from '../components/PlacedDevice';
+
+export interface WiringState {
+  active: boolean;
+  source?: { deviceId: Id; pinId: Id };
+  tempPosition?: Point;
+  tempWaypoints: Point[];
+}
 
 interface EditorState {
   circuit: Circuit | null;
@@ -30,6 +39,12 @@ interface EditorState {
   placedDevices: PlacedDeviceData[];
   selectedDeviceId: string | null;
 
+  connections: ConnectionType[];
+  selectedConnectionId: string | null;
+  wiring: WiringState;
+  highlightedPin: { deviceId: Id; pinId: Id } | null;
+  nets: Net[];
+
   setCircuit: (circuit: Circuit) => void;
   setSelectedIds: (ids: Set<string>) => void;
   setActiveTool: (tool: string) => void;
@@ -44,6 +59,21 @@ interface EditorState {
   movePlacedDevice: (id: string, position: Point) => void;
   selectDevice: (id: string | null) => void;
   clearSelection: () => void;
+
+  addConnection: (connection: ConnectionType) => void;
+  removeConnection: (id: string) => void;
+  updateConnection: (id: string, updates: Partial<ConnectionType>) => void;
+  selectConnection: (id: string | null) => void;
+
+  startWiring: (deviceId: Id, pinId: Id, position: Point) => void;
+  updateWiringPosition: (position: Point) => void;
+  addWiringWaypoint: (position: Point) => void;
+  finishWiring: () => { source: { deviceId: Id; pinId: Id }; target?: { deviceId: Id; pinId: Id } } | null;
+  cancelWiring: () => void;
+  setHighlightedPin: (pin: { deviceId: Id; pinId: Id } | null) => void;
+
+  addNet: (net: Net) => void;
+  removeNet: (id: string) => void;
 
   canUndo: () => boolean;
   canRedo: () => boolean;
@@ -66,6 +96,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   placedDevices: [],
   selectedDeviceId: null,
+
+  connections: [],
+  selectedConnectionId: null,
+  wiring: {
+    active: false,
+    tempWaypoints: []
+  },
+  highlightedPin: null,
+  nets: [],
 
   setCircuit: (circuit) => set({ circuit }),
   setSelectedIds: (ids) => set({ selectedIds: ids }),
@@ -99,10 +138,120 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   selectDevice: (id) => set({ selectedDeviceId: id }),
 
-  clearSelection: () => set({ selectedDeviceId: null }),
+  clearSelection: () => set({ selectedDeviceId: null, selectedConnectionId: null }),
+
+  addConnection: (connection) =>
+    set((state) => ({
+      connections: [...state.connections, connection]
+    })),
+
+  removeConnection: (id) =>
+    set((state) => ({
+      connections: state.connections.filter((c) => c.id !== id),
+      selectedConnectionId: state.selectedConnectionId === id ? null : state.selectedConnectionId
+    })),
+
+  updateConnection: (id, updates) =>
+    set((state) => ({
+      connections: state.connections.map((c) =>
+        c.id === id ? Object.assign({}, c, updates) : c
+      )
+    })),
+
+  selectConnection: (id) => set({ selectedConnectionId: id }),
+
+  startWiring: (deviceId, pinId, position) =>
+    set({
+      wiring: {
+        active: true,
+        source: { deviceId, pinId },
+        tempPosition: position,
+        tempWaypoints: [{ ...position }]
+      }
+    }),
+
+  updateWiringPosition: (position) =>
+    set((state) => {
+      if (!state.wiring.active || !state.wiring.source) {
+        return state;
+      }
+
+      const source = state.wiring.source;
+      const midX = (source.pinId && source.deviceId ? 0 : 0);
+
+      return {
+        wiring: {
+          ...state.wiring,
+          tempPosition: position,
+          tempWaypoints: [
+            ...state.wiring.tempWaypoints.slice(0, -1),
+            ...calculateOrthogonalPath(
+              state.wiring.tempWaypoints[state.wiring.tempWaypoints.length - 1],
+              position
+            )
+          ]
+        }
+      };
+    }),
+
+  addWiringWaypoint: (position) =>
+    set((state) => ({
+      wiring: {
+        ...state.wiring,
+        tempWaypoints: [...state.wiring.tempWaypoints, { ...position }]
+      }
+    })),
+
+  finishWiring: () => {
+    const state = get();
+    if (!state.wiring.active || !state.wiring.source) {
+      return null;
+    }
+
+    const source = state.wiring.source;
+    const tempPosition = state.wiring.tempPosition;
+
+    set({
+      wiring: {
+        active: false,
+        tempWaypoints: []
+      }
+    });
+
+    return { source };
+  },
+
+  cancelWiring: () =>
+    set({
+      wiring: {
+        active: false,
+        tempWaypoints: []
+      }
+    }),
+
+  setHighlightedPin: (pin) => set({ highlightedPin: pin }),
+
+  addNet: (net) =>
+    set((state) => ({
+      nets: [...state.nets, net]
+    })),
+
+  removeNet: (id) =>
+    set((state) => ({
+      nets: state.nets.filter((n) => n.id !== id)
+    })),
 
   canUndo: () => get().undoRedoManager?.canUndo() ?? false,
   canRedo: () => get().undoRedoManager?.canRedo() ?? false,
   undo: () => get().undoRedoManager?.undo(),
   redo: () => get().undoRedoManager?.redo()
 }));
+
+function calculateOrthogonalPath(start: Point, end: Point): Point[] {
+  const midX = (start.x + end.x) / 2;
+  return [
+    { x: midX, y: start.y },
+    { x: midX, y: end.y },
+    { ...end }
+  ];
+}

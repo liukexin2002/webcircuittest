@@ -3,8 +3,9 @@
  * 在画布上显示已放置的器件
  */
 
-import type { DeviceSymbol } from '../lib/DeviceSymbols';
-import { useEditorStore } from '../hooks/useEditorStore';
+import type { DeviceSymbol, PinDefinition } from '../lib/DeviceSymbols';
+import type { Point } from '../../domain';
+import { Pin } from './Pin';
 
 export interface PlacedDeviceData {
   id: string;
@@ -19,6 +20,11 @@ interface PlacedDeviceProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   onMove: (id: string, position: { x: number; y: number }) => void;
+  onPinMouseDown?: (deviceId: string, pinId: string, position: Point) => void;
+  onPinMouseOver?: (deviceId: string, pinId: string) => void;
+  onPinMouseOut?: () => void;
+  highlightedPin?: { deviceId: string; pinId: string } | null;
+  wiringActive?: boolean;
 }
 
 export function PlacedDevice({
@@ -26,10 +32,13 @@ export function PlacedDevice({
   symbol,
   isSelected,
   onSelect,
-  onMove
+  onMove,
+  onPinMouseDown,
+  onPinMouseOver,
+  onPinMouseOut,
+  highlightedPin,
+  wiringActive = false
 }: PlacedDeviceProps) {
-  const { viewport } = useEditorStore();
-
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect(device.id);
@@ -41,10 +50,9 @@ export function PlacedDevice({
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
-      // 鼠标移动是屏幕坐标，需要转换为画布坐标（考虑缩放）
       onMove(device.id, {
-        x: startPos.x + dx / viewport.scale,
-        y: startPos.y + dy / viewport.scale
+        x: startPos.x + dx,
+        y: startPos.y + dy
       });
     };
 
@@ -55,6 +63,13 @@ export function PlacedDevice({
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const getPinPosition = (pin: PinDefinition): Point => {
+    return {
+      x: device.position.x + pin.position.x,
+      y: device.position.y + pin.position.y
+    };
   };
 
   return (
@@ -76,7 +91,6 @@ export function PlacedDevice({
         strokeDasharray={isSelected ? "3,2" : "none"}
       />
 
-      {/* 器件符号：居中定位 */}
       <g transform={`translate(${-symbol.width / 2}, ${-symbol.height / 2})`}
          dangerouslySetInnerHTML={{ __html: symbol.svg }} />
 
@@ -90,6 +104,24 @@ export function PlacedDevice({
       >
         {device.label}
       </text>
+
+      {wiringActive && symbol.pins.map((pin) => {
+        const isHighlighted = highlightedPin?.deviceId === device.id && 
+                              highlightedPin?.pinId === pin.id;
+        
+        return (
+          <Pin
+            key={pin.id}
+            pin={pin}
+            devicePosition={device.position}
+            isHighlighted={isHighlighted}
+            isConnected={false}
+            onMouseDown={(devId, pinId) => onPinMouseDown?.(devId, pinId, getPinPosition(pin))}
+            onMouseOver={(devId, pinId) => onPinMouseOver?.(devId, pinId)}
+            onMouseOut={() => onPinMouseOut?.()}
+          />
+        );
+      })}
     </g>
   );
 }

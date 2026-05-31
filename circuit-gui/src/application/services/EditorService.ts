@@ -3,7 +3,7 @@
  * 核心业务服务，协调各种编辑操作
  */
 
-import type { Id, Point, DeviceRotation } from '../../domain';
+import { type Id, type Point, DeviceRotation } from '../../domain';
 import {
   Circuit,
   Device,

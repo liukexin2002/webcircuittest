@@ -4,17 +4,32 @@
  */
 
 import type { Id, Point, DeviceRotation } from '../types';
-import type { Device, Connection, Net } from '../entities';
+import type { Device } from '../entities/Device';
+import type { Connection } from '../entities/Connection';
+import type { Net } from '../entities/Net';
+import type { Waypoint } from '../entities/Connection';
 
 export enum DomainEventType {
   DEVICE_ADDED = 'device:added',
   DEVICE_REMOVED = 'device:removed',
   DEVICE_MOVED = 'device:moved',
   DEVICE_ROTATED = 'device:rotated',
+  
   CONNECTION_ADDED = 'connection:added',
   CONNECTION_REMOVED = 'connection:removed',
+  CONNECTION_UPDATED = 'connection:updated',
+  CONNECTION_SELECTED = 'connection:selected',
+  
   NET_CREATED = 'net:created',
   NET_REMOVED = 'net:removed',
+  NET_UPDATED = 'net:updated',
+  
+  PIN_CONNECTED = 'pin:connected',
+  PIN_DISCONNECTED = 'pin:disconnected',
+  
+  ROUTING_STARTED = 'routing:started',
+  ROUTING_COMPLETED = 'routing:completed',
+  
   SELECTION_CHANGED = 'selection:changed',
   CIRCUIT_LOADED = 'circuit:loaded',
   CIRCUIT_CLEARED = 'circuit:cleared'
@@ -59,6 +74,18 @@ export interface ConnectionRemovedEvent extends BaseDomainEvent {
   connectionId: Id;
 }
 
+export interface ConnectionUpdatedEvent extends BaseDomainEvent {
+  type: DomainEventType.CONNECTION_UPDATED;
+  connectionId: Id;
+  waypoints: Waypoint[];
+  previousWaypoints: Waypoint[];
+}
+
+export interface ConnectionSelectedEvent extends BaseDomainEvent {
+  type: DomainEventType.CONNECTION_SELECTED;
+  connectionId: Id | null;
+}
+
 export interface NetCreatedEvent extends BaseDomainEvent {
   type: DomainEventType.NET_CREATED;
   net: Net;
@@ -67,6 +94,37 @@ export interface NetCreatedEvent extends BaseDomainEvent {
 export interface NetRemovedEvent extends BaseDomainEvent {
   type: DomainEventType.NET_REMOVED;
   netId: Id;
+}
+
+export interface NetUpdatedEvent extends BaseDomainEvent {
+  type: DomainEventType.NET_UPDATED;
+  netId: Id;
+  name?: string;
+  color?: string | null;
+}
+
+export interface PinConnectedEvent extends BaseDomainEvent {
+  type: DomainEventType.PIN_CONNECTED;
+  deviceId: Id;
+  pinId: Id;
+  netId: Id;
+}
+
+export interface PinDisconnectedEvent extends BaseDomainEvent {
+  type: DomainEventType.PIN_DISCONNECTED;
+  deviceId: Id;
+  pinId: Id;
+  previousNetId: Id;
+}
+
+export interface RoutingStartedEvent extends BaseDomainEvent {
+  type: DomainEventType.ROUTING_STARTED;
+  connectionIds: Id[];
+}
+
+export interface RoutingCompletedEvent extends BaseDomainEvent {
+  type: DomainEventType.ROUTING_COMPLETED;
+  connectionIds: Id[];
 }
 
 export interface SelectionChangedEvent extends BaseDomainEvent {
@@ -91,8 +149,15 @@ export type DomainEvent =
   | DeviceRotatedEvent
   | ConnectionAddedEvent
   | ConnectionRemovedEvent
+  | ConnectionUpdatedEvent
+  | ConnectionSelectedEvent
   | NetCreatedEvent
   | NetRemovedEvent
+  | NetUpdatedEvent
+  | PinConnectedEvent
+  | PinDisconnectedEvent
+  | RoutingStartedEvent
+  | RoutingCompletedEvent
   | SelectionChangedEvent
   | CircuitLoadedEvent
   | CircuitClearedEvent;
