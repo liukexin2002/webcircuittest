@@ -20,13 +20,17 @@ export function Connection({
   onSelect,
   onWaypointDrag
 }: ConnectionProps) {
+  console.log('Connection rendering:', connection);
+  
   const { waypoints } = connection;
   
   if (waypoints.length < 2) {
+    console.log('Connection has < 2 waypoints, returning null');
     return null;
   }
 
   const points = waypoints.map(wp => `${wp.position.x},${wp.position.y}`).join(' ');
+  console.log('Connection points string:', points);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

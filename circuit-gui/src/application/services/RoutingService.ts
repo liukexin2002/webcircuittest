@@ -42,7 +42,8 @@ export class RoutingService {
         mode: 'straight' as const
       })),
       netId: finalNetId,
-      width: 1,
+      width: 2,
+      color: '#3b82f6',
       style: ConnectionStyle.Solid
     });
 

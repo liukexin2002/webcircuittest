@@ -159,23 +159,33 @@ export function Canvas() {
   };
 
   const handlePinMouseDown = (deviceId: string, pinId: string, position: Point) => {
-    if (activeTool === 'wire') {
+    console.log('handlePinMouseDown called:', { deviceId, pinId, position, activeTool, wiring });
+    
+    if (activeTool === 'wire' || wiring.active) {
       if (wiring.active && wiring.source) {
         const isSamePin = 
           wiring.source.deviceId === deviceId && 
           wiring.source.pinId === pinId;
         
+        console.log('isSamePin:', isSamePin);
+        
         if (!isSamePin) {
           const sourceDevice = placedDevices.find(d => d.id === wiring.source?.deviceId);
           const targetDevice = placedDevices.find(d => d.id === deviceId);
+          
+          console.log('sourceDevice:', sourceDevice, 'targetDevice:', targetDevice);
           
           if (sourceDevice && targetDevice) {
             const sourceSymbol = getDeviceSymbol(sourceDevice.deviceType);
             const targetSymbol = getDeviceSymbol(targetDevice.deviceType);
             
+            console.log('sourceSymbol:', sourceSymbol, 'targetSymbol:', targetSymbol);
+            
             if (sourceSymbol && targetSymbol) {
               const sourcePin = sourceSymbol.pins.find(p => p.id === wiring.source?.pinId);
               const targetPin = targetSymbol.pins.find(p => p.id === pinId);
+              
+              console.log('sourcePin:', sourcePin, 'targetPin:', targetPin);
               
               if (sourcePin && targetPin) {
                 const sourcePosition = {
@@ -188,12 +198,16 @@ export function Canvas() {
                   y: targetDevice.position.y + targetPin.position.y
                 };
                 
+                console.log('sourcePosition:', sourcePosition, 'targetPosition:', targetPosition);
+                
                 const { connection, netId } = routingService.connectPins(
                   { deviceId: wiring.source.deviceId, pinId: wiring.source.pinId },
                   { deviceId, pinId },
                   sourcePosition,
                   targetPosition
                 );
+                
+                console.log('Connection created:', connection);
                 
                 addConnection(connection);
                 finishWiring();
@@ -203,7 +217,8 @@ export function Canvas() {
             }
           }
         }
-      } else {
+      } else if (activeTool === 'wire') {
+        console.log('Starting wiring from:', { deviceId, pinId, position });
         startWiring(deviceId, pinId, position);
       }
     }
@@ -237,6 +252,8 @@ export function Canvas() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [wiring.active, cancelWiring]);
 
+  console.log('Canvas rendering, connections count:', connections.length, connections);
+  
   return (
     <div
       ref={containerRef}
