@@ -9,7 +9,8 @@ import { PinDirection } from '../../domain';
 
 interface PinProps {
   pin: PinDefinition;
-  devicePosition: Point;
+  symbolWidth: number;
+  symbolHeight: number;
   isHighlighted: boolean;
   isConnected: boolean;
   onMouseDown: (deviceId: string, pinId: string, position: Point) => void;
@@ -19,7 +20,8 @@ interface PinProps {
 
 export function Pin({
   pin,
-  devicePosition,
+  symbolWidth,
+  symbolHeight,
   isHighlighted,
   isConnected,
   onMouseDown,
@@ -27,12 +29,11 @@ export function Pin({
   onMouseOut
 }: PinProps) {
   const absolutePosition: Point = {
-    x: devicePosition.x + pin.position.x,
-    y: devicePosition.y + pin.position.y
+    x: pin.position.x,
+    y: pin.position.y
   };
 
   const pinRadius = 4;
-  const pinLength = pin.length ?? 10;
 
   const getPinColor = () => {
     if (isHighlighted) return '#3b82f6';
@@ -54,16 +55,18 @@ export function Pin({
     onMouseOut();
   };
 
+  const PIN_INDICATOR_LENGTH = 15;
+
   const getLineEnd = () => {
     switch (pin.direction) {
       case PinDirection.West:
-        return { x: absolutePosition.x - pinLength, y: absolutePosition.y };
+        return { x: absolutePosition.x - PIN_INDICATOR_LENGTH, y: absolutePosition.y };
       case PinDirection.East:
-        return { x: absolutePosition.x + pinLength, y: absolutePosition.y };
+        return { x: absolutePosition.x + PIN_INDICATOR_LENGTH, y: absolutePosition.y };
       case PinDirection.North:
-        return { x: absolutePosition.x, y: absolutePosition.y - pinLength };
+        return { x: absolutePosition.x, y: absolutePosition.y - PIN_INDICATOR_LENGTH };
       case PinDirection.South:
-        return { x: absolutePosition.x, y: absolutePosition.y + pinLength };
+        return { x: absolutePosition.x, y: absolutePosition.y + PIN_INDICATOR_LENGTH };
       default:
         return absolutePosition;
     }
@@ -86,10 +89,10 @@ export function Pin({
       />
       
       <line
-        x1={absolutePosition.x}
-        y1={absolutePosition.y}
-        x2={lineEnd.x}
-        y2={lineEnd.y}
+        x1={lineEnd.x}
+        y1={lineEnd.y}
+        x2={absolutePosition.x}
+        y2={absolutePosition.y}
         stroke={getPinColor()}
         strokeWidth={1.5}
         strokeLinecap="round"

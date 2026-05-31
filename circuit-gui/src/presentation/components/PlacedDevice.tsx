@@ -3,7 +3,7 @@
  * 在画布上显示已放置的器件
  */
 
-import type { DeviceSymbol, PinDefinition } from '../lib/DeviceSymbols';
+import type { DeviceSymbol } from '../lib/DeviceSymbols';
 import type { Point } from '../../domain';
 import { Pin } from './Pin';
 
@@ -65,13 +65,6 @@ export function PlacedDevice({
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  const getPinPosition = (pin: PinDefinition): Point => {
-    return {
-      x: device.position.x + pin.position.x,
-      y: device.position.y + pin.position.y
-    };
-  };
-
   return (
     <g
       transform={`translate(${device.position.x}, ${device.position.y})`}
@@ -113,11 +106,12 @@ export function PlacedDevice({
           <Pin
             key={pin.id}
             pin={pin}
-            devicePosition={{ x: 0, y: 0 }}
+            symbolWidth={symbol.width}
+            symbolHeight={symbol.height}
             isHighlighted={isHighlighted}
             isConnected={false}
-            onMouseDown={(devId, pinId, pos) => onPinMouseDown?.(device.id, pinId, getPinPosition(pin))}
-            onMouseOver={(devId, pinId) => onPinMouseOver?.(device.id, pinId)}
+            onMouseDown={(_, pinId, pos) => onPinMouseDown?.(device.id, pinId, pos)}
+            onMouseOver={(_, pinId) => onPinMouseOver?.(device.id, pinId)}
             onMouseOut={() => onPinMouseOut?.()}
           />
         );
