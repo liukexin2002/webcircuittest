@@ -18,21 +18,21 @@ export function DevicePalette({ onDragStart }: DevicePaletteProps) {
   };
 
   return (
-    <div className="w-60 bg-gray-50 border-r border-gray-300 p-4">
+    <div className="w-60 bg-white border-r border-gray-300 p-4">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">器件栏</h2>
-      <div className="space-y-3">
+      <div className="space-y-1">
         {DEVICE_SYMBOLS.map((device) => (
           <div
             key={device.id}
             draggable
             onDragStart={(e) => handleDragStart(e, device)}
-            className="bg-white border-2 border-gray-200 rounded-lg p-3 cursor-grab hover:border-blue-400 hover:bg-blue-50 hover:shadow-md transition-all h-[100px] flex flex-col"
+            className="bg-white border border-transparent rounded p-2 cursor-grab hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center gap-3"
           >
             <div
-              className="flex-1 flex items-center justify-center bg-gray-50 rounded"
+              className="w-12 h-8 flex items-center justify-center flex-shrink-0"
               dangerouslySetInnerHTML={{ __html: device.svg }}
             />
-            <div className="mt-2 text-center">
+            <div className="flex-1">
               <div className="font-medium text-gray-800 text-sm">{device.nameCn}</div>
               <div className="text-xs text-gray-500">{device.prefix}</div>
             </div>

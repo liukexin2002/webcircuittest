@@ -65,10 +65,10 @@ export function Canvas() {
       onClick={handleCanvasClick}
       style={{
         backgroundImage: `
-          linear-gradient(to right, #f0f0f0 1px, transparent 1px),
-          linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)
+          linear-gradient(to right, #e8e8e8 1px, transparent 1px),
+          linear-gradient(to bottom, #e8e8e8 1px, transparent 1px)
         `,
-        backgroundSize: '20px 20px',
+        backgroundSize: '10px 10px',
         backgroundPosition: `${viewport.offset.x}px ${viewport.offset.y}px`
       }}
     >

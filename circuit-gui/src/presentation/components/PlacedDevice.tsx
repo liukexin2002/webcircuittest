@@ -61,25 +61,25 @@ export function PlacedDevice({
       style={{ cursor: 'move' }}
     >
       <rect
-        x={-symbol.width / 2 - 8}
-        y={-symbol.height / 2 - 8}
-        width={symbol.width + 16}
-        height={symbol.height + 16}
-        fill={isSelected ? "rgba(59, 130, 246, 0.1)" : "transparent"}
-        stroke={isSelected ? '#2563eb' : 'transparent'}
-        strokeWidth={2}
-        rx={6}
-        strokeDasharray={isSelected ? "4,2" : "none"}
+        x={-symbol.width / 2 - 6}
+        y={-symbol.height / 2 - 6}
+        width={symbol.width + 12}
+        height={symbol.height + 12}
+        fill={isSelected ? "rgba(59, 130, 246, 0.08)" : "transparent"}
+        stroke={isSelected ? '#3b82f6' : 'transparent'}
+        strokeWidth={1.5}
+        rx={4}
+        strokeDasharray={isSelected ? "3,2" : "none"}
       />
 
       <g dangerouslySetInnerHTML={{ __html: symbol.svg }} />
 
       <text
-        y={symbol.height / 2 + 24}
+        y={symbol.height / 2 + 18}
         textAnchor="middle"
-        fontSize={14}
+        fontSize={12}
         fontFamily="Arial, sans-serif"
-        fill="#333333"
+        fill="#444444"
         fontWeight="500"
       >
         {device.label}
