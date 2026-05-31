@@ -22,12 +22,10 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     width: 60,
     height: 40,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <line x1="0" y1="20" x2="10" y2="20" stroke="currentColor" stroke-width="2"/>
         <path d="M10,20 L15,8 L22,32 L29,8 L36,32 L43,8 L50,20" 
               stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         <line x1="50" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
-      </svg>
     `
   },
   {
@@ -38,12 +36,10 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     width: 60,
     height: 40,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <line x1="0" y1="20" x2="25" y2="20" stroke="currentColor" stroke-width="2"/>
         <line x1="25" y1="6" x2="25" y2="34" stroke="currentColor" stroke-width="3"/>
         <line x1="35" y1="6" x2="35" y2="34" stroke="currentColor" stroke-width="3"/>
         <line x1="35" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
-      </svg>
     `
   },
   {
@@ -54,12 +50,10 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     width: 60,
     height: 40,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <line x1="0" y1="20" x2="10" y2="20" stroke="currentColor" stroke-width="2"/>
         <path d="M10,20 Q15,8 20,20 Q25,32 30,20 Q35,8 40,20 Q45,32 50,20" 
               stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
         <line x1="50" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
-      </svg>
     `
   }
 ];

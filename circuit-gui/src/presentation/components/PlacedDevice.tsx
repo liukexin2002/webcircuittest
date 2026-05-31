@@ -72,7 +72,9 @@ export function PlacedDevice({
         strokeDasharray={isSelected ? "3,2" : "none"}
       />
 
-      <g dangerouslySetInnerHTML={{ __html: symbol.svg }} />
+      {/* 器件符号：居中定位 */}
+      <g transform={`translate(${-symbol.width / 2}, ${-symbol.height / 2})`}
+         dangerouslySetInnerHTML={{ __html: symbol.svg }} />
 
       <text
         y={symbol.height / 2 + 14}

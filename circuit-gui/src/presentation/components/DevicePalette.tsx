@@ -28,8 +28,11 @@ export function DevicePalette({ onDragStart }: DevicePaletteProps) {
             onDragStart={(e) => handleDragStart(e, device)}
             className="bg-white border border-transparent rounded p-2 cursor-grab hover:border-blue-400 hover:bg-blue-50 transition-all flex items-center gap-3"
           >
-            <div
-              className="w-12 h-8 flex items-center justify-center flex-shrink-0"
+            <svg
+              viewBox={`0 0 ${device.width} ${device.height}`}
+              className="w-12 h-8 flex items-center justify-center"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
               dangerouslySetInnerHTML={{ __html: device.svg }}
             />
             <div className="flex-1">
@@ -37,7 +40,7 @@ export function DevicePalette({ onDragStart }: DevicePaletteProps) {
               <div className="text-xs text-gray-500">{device.prefix}</div>
             </div>
           </div>
-        ))}
+          ))}
       </div>
     </div>
   );
