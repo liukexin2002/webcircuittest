@@ -1,11 +1,7 @@
-import { EditorProvider, Editor } from './presentation'
+import { AppLayout } from './presentation/components/layout/AppLayout';
 
 function App() {
-  return (
-    <EditorProvider>
-      <Editor />
-    </EditorProvider>
-  )
+  return <AppLayout />;
 }
 
-export default App
+export default App;

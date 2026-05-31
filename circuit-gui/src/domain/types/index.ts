@@ -1,38 +1,62 @@
-/**
- * 领域层基础类型定义
- * 定义电路编辑系统的核心数据类型
- */
-
+export type Point = { x: number; y: number };
 export type Id = string;
 
-export interface Point {
-  x: number;
-  y: number;
-}
-
-export interface Size {
-  width: number;
-  height: number;
-}
-
-export interface BoundingBox {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export enum DeviceType {
+  RESISTOR = 'resistor',
+  INDUCTOR = 'inductor',
+  CAPACITOR = 'capacitor'
 }
 
 export enum PinType {
-  Input = 'input',
-  Output = 'output',
-  Bidirectional = 'bidirectional',
-  Power = 'power',
-  Passive = 'passive'
+  PASSIVE = 'passive'
 }
 
-export enum DeviceRotation {
-  Deg0 = 0,
-  Deg90 = 90,
-  Deg180 = 180,
-  Deg270 = 270
+export interface Pin {
+  id: Id;
+  deviceId: Id;
+  name: string;
+  type: PinType;
+  position: Point;
+  offset: Point;
+}
+
+export interface Device {
+  id: Id;
+  type: DeviceType;
+  label: string;
+  position: Point;
+  rotation: number;
+  size: { width: number; height: number };
+  pins: Pin[];
+  selected: boolean;
+  properties?: Record<string, string | number>;
+}
+
+export interface Connection {
+  id: Id;
+  sourcePinId: Id;
+  sourceDeviceId: Id;
+  targetPinId: Id;
+  targetDeviceId: Id;
+  waypoints: Point[];
+  pathData: string;
+  selected: boolean;
+}
+
+export interface PinRef {
+  deviceId: Id;
+  pinId: Id;
+}
+
+export interface DeviceTemplate {
+  type: DeviceType;
+  labelPrefix: string;
+  size: { width: number; height: number };
+  svgPath: string;
+  pins: Array<{
+    name: string;
+    position: Point;
+    type: PinType;
+  }>;
+  defaultProperties: Record<string, string | number>;
 }
