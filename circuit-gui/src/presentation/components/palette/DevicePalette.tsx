@@ -1,9 +1,9 @@
 import React from 'react';
-import { useCircuitStore } from '../../data/stores/circuitStore';
+import { useCircuitStore } from '../../../data/stores/circuitStore';
 import { PaletteItem } from './PaletteItem';
-import type { DeviceType } from '../../domain/types';
+import { DeviceType, type DeviceTypeValue } from '../../../domain/types';
 
-const PALETTE_ITEMS: { type: DeviceType; label: string; icon: string }[] = [
+const PALETTE_ITEMS: { type: DeviceTypeValue; label: string; icon: string }[] = [
   { type: DeviceType.RESISTOR, label: '电阻', icon: 'R' },
   { type: DeviceType.INDUCTOR, label: '电感', icon: 'L' },
   { type: DeviceType.CAPACITOR, label: '电容', icon: 'C' },
@@ -12,8 +12,8 @@ const PALETTE_ITEMS: { type: DeviceType; label: string; icon: string }[] = [
 export const DevicePalette: React.FC = () => {
   const setActiveTool = useCircuitStore((s) => s.setActiveTool);
 
-  const handleDragStart = (e: React.DragEvent, deviceType: DeviceType) => {
-    e.dataTransfer.setData('application/x-device-type', deviceType);
+  const handleDragStart = (e: React.DragEvent, deviceType: DeviceTypeValue) => {
+    e.dataTransfer.setData('application/x-device-type', String(deviceType));
     e.dataTransfer.effectAllowed = 'copy';
     setActiveTool('place');
   };

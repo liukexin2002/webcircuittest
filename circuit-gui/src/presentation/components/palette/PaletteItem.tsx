@@ -1,9 +1,9 @@
 import React from 'react';
-import type { DeviceType } from '../../domain/types';
-import { DEVICE_TEMPLATES } from '../../domain/templates/deviceTemplates';
+import type { DeviceTypeValue } from '../../domain/types';
+import { DEVICE_TEMPLATES } from '../../../domain/templates/deviceTemplates';
 
 interface PaletteItemProps {
-  type: DeviceType;
+  type: DeviceTypeValue;
   label: string;
   icon: string;
   onDragStart: (e: React.DragEvent) => void;
@@ -12,6 +12,7 @@ interface PaletteItemProps {
 export const PaletteItem: React.FC<PaletteItemProps> = ({
   type,
   label,
+  icon,
   onDragStart,
 }) => {
   const template = DEVICE_TEMPLATES[type];

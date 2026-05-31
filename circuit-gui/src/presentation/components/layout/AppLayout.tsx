@@ -1,5 +1,4 @@
 import React from 'react';
-import { useCircuitStore } from '../../data/stores/circuitStore';
 import { DevicePalette } from '../palette/DevicePalette';
 import { Canvas } from '../canvas/Canvas';
 import { Toolbar } from './Toolbar';

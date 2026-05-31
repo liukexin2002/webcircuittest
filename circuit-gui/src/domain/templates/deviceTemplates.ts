@@ -1,6 +1,7 @@
-import type { DeviceType, DeviceTemplate } from '../types';
+import type { DeviceTypeValue, DeviceTemplate } from '../types';
+import { DeviceType } from '../types';
 
-export const DEVICE_TEMPLATES: Record<DeviceType, DeviceTemplate> = {
+export const DEVICE_TEMPLATES: Record<DeviceTypeValue, DeviceTemplate> = {
   [DeviceType.RESISTOR]: {
     type: DeviceType.RESISTOR,
     labelPrefix: 'R',

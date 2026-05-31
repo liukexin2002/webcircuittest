@@ -1,28 +1,32 @@
 export type Point = { x: number; y: number };
 export type Id = string;
 
-export enum DeviceType {
-  RESISTOR = 'resistor',
-  INDUCTOR = 'inductor',
-  CAPACITOR = 'capacitor'
-}
+export const DeviceType = {
+  RESISTOR: 'resistor',
+  INDUCTOR: 'inductor',
+  CAPACITOR: 'capacitor'
+} as const;
 
-export enum PinType {
-  PASSIVE = 'passive'
-}
+export type DeviceTypeValue = (typeof DeviceType)[keyof typeof DeviceType];
+
+export const PinType = {
+  PASSIVE: 'passive'
+} as const;
+
+export type PinTypeValue = (typeof PinType)[keyof typeof PinType];
 
 export interface Pin {
   id: Id;
   deviceId: Id;
   name: string;
-  type: PinType;
+  type: PinTypeValue;
   position: Point;
   offset: Point;
 }
 
 export interface Device {
   id: Id;
-  type: DeviceType;
+  type: DeviceTypeValue;
   label: string;
   position: Point;
   rotation: number;
@@ -49,14 +53,14 @@ export interface PinRef {
 }
 
 export interface DeviceTemplate {
-  type: DeviceType;
+  type: DeviceTypeValue;
   labelPrefix: string;
   size: { width: number; height: number };
   svgPath: string;
   pins: Array<{
     name: string;
     position: Point;
-    type: PinType;
+    type: PinTypeValue;
   }>;
   defaultProperties: Record<string, string | number>;
 }

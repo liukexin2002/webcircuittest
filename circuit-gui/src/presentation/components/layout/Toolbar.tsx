@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCircuitStore } from '../../../data/stores/circuitStore';
-import { Button } from '../../ui/button';
+import { Button } from '../../../components/ui/button';
 
 export const Toolbar: React.FC = () => {
   const activeTool = useCircuitStore((s) => s.activeTool);

@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { useCircuitStore } from '../../data/stores/circuitStore';
+import { useCircuitStore } from '../../../data/stores/circuitStore';
 import { CanvasGrid } from './CanvasGrid';
 import { DeviceNode } from './DeviceNode';
 import { ConnectionWire } from './ConnectionWire';

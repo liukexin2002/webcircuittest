@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { nanoid } from 'nanoid';
-import type { Device, Connection, Point, DeviceType, PinRef, Pin } from '../domain/types';
-import { DEVICE_TEMPLATES } from '../domain/templates/deviceTemplates';
+import type { Device, Connection, Point, DeviceTypeValue, PinRef, Pin } from '../../domain/types';
+import { DEVICE_TEMPLATES } from '../../domain/templates/deviceTemplates';
 
 interface CircuitState {
   devices: Record<string, Device>;
@@ -19,7 +19,7 @@ interface CircuitState {
 }
 
 interface CircuitActions {
-  addDevice: (type: DeviceType, position: Point) => string;
+  addDevice: (type: DeviceTypeValue, position: Point) => string;
   removeDevice: (id: string) => void;
   moveDevice: (id: string, position: Point) => void;
   selectDevice: (id: string, multi?: boolean) => void;
