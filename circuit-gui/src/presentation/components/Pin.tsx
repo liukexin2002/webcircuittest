@@ -32,6 +32,7 @@ export function Pin({
   };
 
   const pinRadius = 4;
+  const pinLength = pin.length ?? 10;
 
   const getPinColor = () => {
     if (isHighlighted) return '#3b82f6';
@@ -53,6 +54,23 @@ export function Pin({
     onMouseOut();
   };
 
+  const getLineEnd = () => {
+    switch (pin.direction) {
+      case PinDirection.West:
+        return { x: absolutePosition.x - pinLength, y: absolutePosition.y };
+      case PinDirection.East:
+        return { x: absolutePosition.x + pinLength, y: absolutePosition.y };
+      case PinDirection.North:
+        return { x: absolutePosition.x, y: absolutePosition.y - pinLength };
+      case PinDirection.South:
+        return { x: absolutePosition.x, y: absolutePosition.y + pinLength };
+      default:
+        return absolutePosition;
+    }
+  };
+
+  const lineEnd = getLineEnd();
+
   return (
     <g
       onMouseDown={handleMouseDown}
@@ -70,16 +88,8 @@ export function Pin({
       <line
         x1={absolutePosition.x}
         y1={absolutePosition.y}
-        x2={
-          pin.direction === PinDirection.West ? absolutePosition.x - (pin.length ?? 10) :
-          pin.direction === PinDirection.East ? absolutePosition.x + (pin.length ?? 10) :
-          absolutePosition.x
-        }
-        y2={
-          pin.direction === PinDirection.North ? absolutePosition.y - (pin.length ?? 10) :
-          pin.direction === PinDirection.South ? absolutePosition.y + (pin.length ?? 10) :
-          absolutePosition.y
-        }
+        x2={lineEnd.x}
+        y2={lineEnd.y}
         stroke={getPinColor()}
         strokeWidth={1.5}
         strokeLinecap="round"
@@ -88,14 +98,12 @@ export function Pin({
       <circle
         cx={absolutePosition.x}
         cy={absolutePosition.y}
-        r={pinRadius}
+        r={isHighlighted ? pinRadius * 1.3 : pinRadius}
         fill={getPinColor()}
         stroke="white"
         strokeWidth={isHighlighted ? 2 : 1}
         style={{
-          transition: 'all 0.15s',
-          transform: isHighlighted ? 'scale(1.3)' : 'scale(1)',
-          transformOrigin: `${absolutePosition.x}px ${absolutePosition.y}px`
+          transition: 'all 0.15s'
         }}
       />
     </g>

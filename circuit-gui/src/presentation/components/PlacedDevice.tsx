@@ -80,10 +80,10 @@ export function PlacedDevice({
       style={{ cursor: 'move' }}
     >
       <rect
-        x={-symbol.width / 2 - 6}
-        y={-symbol.height / 2 - 6}
-        width={symbol.width + 12}
-        height={symbol.height + 12}
+        x={0}
+        y={0}
+        width={symbol.width}
+        height={symbol.height}
         fill={isSelected ? "rgba(59, 130, 246, 0.08)" : "transparent"}
         stroke={isSelected ? '#3b82f6' : 'transparent'}
         strokeWidth={1.5}
@@ -91,11 +91,11 @@ export function PlacedDevice({
         strokeDasharray={isSelected ? "3,2" : "none"}
       />
 
-      <g transform={`translate(${-symbol.width / 2}, ${-symbol.height / 2})`}
-         dangerouslySetInnerHTML={{ __html: symbol.svg }} />
+      <g dangerouslySetInnerHTML={{ __html: symbol.svg }} />
 
       <text
-        y={symbol.height / 2 + 14}
+        x={symbol.width / 2}
+        y={symbol.height + 14}
         textAnchor="middle"
         fontSize={11}
         fontFamily="Arial, sans-serif"
@@ -113,10 +113,10 @@ export function PlacedDevice({
           <Pin
             key={pin.id}
             pin={pin}
-            devicePosition={device.position}
+            devicePosition={{ x: 0, y: 0 }}
             isHighlighted={isHighlighted}
             isConnected={false}
-            onMouseDown={(devId, pinId, pos) => onPinMouseDown?.(device.id, pinId, pos)}
+            onMouseDown={(devId, pinId, pos) => onPinMouseDown?.(device.id, pinId, getPinPosition(pin))}
             onMouseOver={(devId, pinId) => onPinMouseOver?.(device.id, pinId)}
             onMouseOut={() => onPinMouseOut?.()}
           />
