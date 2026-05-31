@@ -68,7 +68,8 @@ export function Canvas() {
           linear-gradient(to right, #f0f0f0 1px, transparent 1px),
           linear-gradient(to bottom, #f0f0f0 1px, transparent 1px)
         `,
-        backgroundSize: '20px 20px'
+        backgroundSize: '20px 20px',
+        backgroundPosition: `${viewport.offset.x}px ${viewport.offset.y}px`
       }}
     >
       <svg

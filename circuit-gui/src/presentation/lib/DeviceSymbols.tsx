@@ -19,14 +19,14 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     name: 'Resistor',
     nameCn: '电阻',
     prefix: 'R',
-    width: 60,
-    height: 40,
+    width: 90,
+    height: 60,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="20" x2="10" y2="20" stroke="currentColor" stroke-width="2"/>
-        <path d="M10,20 L15,8 L22,32 L29,8 L36,32 L43,8 L50,20" 
+      <svg viewBox="0 0 90 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="30" x2="15" y2="30" stroke="currentColor" stroke-width="2"/>
+        <path d="M15,30 L22,12 L33,48 L44,12 L55,48 L66,12 L77,30" 
               stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="50" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
+        <line x1="77" y1="30" x2="90" y2="30" stroke="currentColor" stroke-width="2"/>
       </svg>
     `
   },
@@ -35,14 +35,14 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     name: 'Capacitor',
     nameCn: '电容',
     prefix: 'C',
-    width: 60,
-    height: 40,
+    width: 90,
+    height: 60,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="20" x2="25" y2="20" stroke="currentColor" stroke-width="2"/>
-        <line x1="25" y1="6" x2="25" y2="34" stroke="currentColor" stroke-width="3"/>
-        <line x1="35" y1="6" x2="35" y2="34" stroke="currentColor" stroke-width="3"/>
-        <line x1="35" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
+      <svg viewBox="0 0 90 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="30" x2="37" y2="30" stroke="currentColor" stroke-width="2"/>
+        <line x1="37" y1="9" x2="37" y2="51" stroke="currentColor" stroke-width="3"/>
+        <line x1="53" y1="9" x2="53" y2="51" stroke="currentColor" stroke-width="3"/>
+        <line x1="53" y1="30" x2="90" y2="30" stroke="currentColor" stroke-width="2"/>
       </svg>
     `
   },
@@ -51,14 +51,14 @@ export const DEVICE_SYMBOLS: DeviceSymbol[] = [
     name: 'Inductor',
     nameCn: '电感',
     prefix: 'L',
-    width: 60,
-    height: 40,
+    width: 90,
+    height: 60,
     svg: `
-      <svg viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="0" y1="20" x2="10" y2="20" stroke="currentColor" stroke-width="2"/>
-        <path d="M10,20 Q15,8 20,20 Q25,32 30,20 Q35,8 40,20 Q45,32 50,20" 
+      <svg viewBox="0 0 90 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="0" y1="30" x2="15" y2="30" stroke="currentColor" stroke-width="2"/>
+        <path d="M15,30 Q22,12 30,30 Q37,48 45,30 Q52,12 60,30 Q67,48 75,30" 
               stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <line x1="50" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="2"/>
+        <line x1="75" y1="30" x2="90" y2="30" stroke="currentColor" stroke-width="2"/>
       </svg>
     `
   }

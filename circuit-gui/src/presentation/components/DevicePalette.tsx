@@ -26,14 +26,14 @@ export function DevicePalette({ onDragStart }: DevicePaletteProps) {
             key={device.id}
             draggable
             onDragStart={(e) => handleDragStart(e, device)}
-            className="bg-white border-2 border-gray-200 rounded-lg p-3 cursor-grab hover:border-blue-400 hover:bg-blue-50 transition-colors"
+            className="bg-white border-2 border-gray-200 rounded-lg p-3 cursor-grab hover:border-blue-400 hover:bg-blue-50 hover:shadow-md transition-all h-[100px] flex flex-col"
           >
             <div
-              className="w-full h-10 flex items-center justify-center text-gray-700"
+              className="flex-1 flex items-center justify-center bg-gray-50 rounded"
               dangerouslySetInnerHTML={{ __html: device.svg }}
             />
             <div className="mt-2 text-center">
-              <div className="font-medium text-gray-800">{device.nameCn}</div>
+              <div className="font-medium text-gray-800 text-sm">{device.nameCn}</div>
               <div className="text-xs text-gray-500">{device.prefix}</div>
             </div>
           </div>
