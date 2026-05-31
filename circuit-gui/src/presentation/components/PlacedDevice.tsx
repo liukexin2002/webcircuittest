@@ -4,6 +4,7 @@
  */
 
 import type { DeviceSymbol } from '../lib/DeviceSymbols';
+import { useEditorStore } from '../hooks/useEditorStore';
 
 export interface PlacedDeviceData {
   id: string;
@@ -27,6 +28,8 @@ export function PlacedDevice({
   onSelect,
   onMove
 }: PlacedDeviceProps) {
+  const { viewport } = useEditorStore();
+
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     onSelect(device.id);
@@ -38,9 +41,10 @@ export function PlacedDevice({
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
+      // 鼠标移动是屏幕坐标，需要转换为画布坐标（考虑缩放）
       onMove(device.id, {
-        x: startPos.x + dx,
-        y: startPos.y + dy
+        x: startPos.x + dx / viewport.scale,
+        y: startPos.y + dy / viewport.scale
       });
     };
 

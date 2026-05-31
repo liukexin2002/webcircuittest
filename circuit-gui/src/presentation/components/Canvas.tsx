@@ -29,8 +29,15 @@ export function Canvas() {
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
-      const x = (e.clientX - rect.left - viewport.offset.x) / viewport.scale;
-      const y = (e.clientY - rect.top - viewport.offset.y) / viewport.scale;
+      // 计算相对于画布容器左上角的位置，这是屏幕坐标
+      const clientX = e.clientX - rect.left;
+      const clientY = e.clientY - rect.top;
+      
+      // 转换为画布坐标系（考虑 viewport 的平移和缩放）
+      // 因为外层 SVG 已经应用了 transform: translate(viewport.offset) scale(viewport.scale)
+      // 所以我们需要反向计算，把屏幕坐标转换为画布内部坐标
+      const x = (clientX - viewport.offset.x) / viewport.scale;
+      const y = (clientY - viewport.offset.y) / viewport.scale;
 
       const symbol = getDeviceSymbol(deviceSymbol.id);
       if (!symbol) return;
@@ -78,23 +85,22 @@ export function Canvas() {
           transform: `translate(${viewport.offset.x}px, ${viewport.offset.y}px) scale(${viewport.scale})`
         }}
       >
-        <g transform="translate(400, 300)">
-          {placedDevices.map((device) => {
-            const symbol = getDeviceSymbol(device.deviceType);
-            if (!symbol) return null;
+        {/* 移除硬编码的 translate(400, 300)，让器件直接放置在鼠标松开的位置 */}
+        {placedDevices.map((device) => {
+          const symbol = getDeviceSymbol(device.deviceType);
+          if (!symbol) return null;
 
-            return (
-              <PlacedDevice
-                key={device.id}
-                device={device}
-                symbol={symbol}
-                isSelected={selectedDeviceId === device.id}
-                onSelect={selectDevice}
-                onMove={movePlacedDevice}
-              />
-            );
-          })}
-        </g>
+          return (
+            <PlacedDevice
+              key={device.id}
+              device={device}
+              symbol={symbol}
+              isSelected={selectedDeviceId === device.id}
+              onSelect={selectDevice}
+              onMove={movePlacedDevice}
+            />
+          );
+        })}
       </svg>
     </div>
   );
