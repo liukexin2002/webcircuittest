@@ -11,9 +11,9 @@ import {
   ToolManager,
   EventEmitter,
   UndoRedoManager,
+  Connection,
   Net
 } from '../..';
-import type { Connection as ConnectionType } from '../../domain';
 import type { PlacedDeviceData } from '../components/PlacedDevice';
 
 export interface WiringState {
@@ -39,7 +39,7 @@ interface EditorState {
   placedDevices: PlacedDeviceData[];
   selectedDeviceId: string | null;
 
-  connections: ConnectionType[];
+  connections: Connection[];
   selectedConnectionId: string | null;
   wiring: WiringState;
   highlightedPin: { deviceId: Id; pinId: Id } | null;
@@ -60,15 +60,15 @@ interface EditorState {
   selectDevice: (id: string | null) => void;
   clearSelection: () => void;
 
-  addConnection: (connection: ConnectionType) => void;
+  addConnection: (connection: Connection) => void;
   removeConnection: (id: string) => void;
-  updateConnection: (id: string, updates: Partial<ConnectionType>) => void;
+  updateConnection: (id: string, updates: Partial<Connection>) => void;
   selectConnection: (id: string | null) => void;
 
   startWiring: (deviceId: Id, pinId: Id, position: Point) => void;
   updateWiringPosition: (position: Point) => void;
   addWiringWaypoint: (position: Point) => void;
-  finishWiring: () => { source: { deviceId: Id; pinId: Id }; target?: { deviceId: Id; pinId: Id } } | null;
+  finishWiring: () => void;
   cancelWiring: () => void;
   setHighlightedPin: (pin: { deviceId: Id; pinId: Id } | null) => void;
 
@@ -80,6 +80,16 @@ interface EditorState {
   undo: () => void;
   redo: () => void;
 }
+
+const calculateOrthogonalPath = (start: Point, end: Point) => {
+  const midX = (start.x + end.x) / 2;
+  return [
+    start,
+    { x: midX, y: start.y },
+    { x: midX, y: end.y },
+    end
+  ];
+};
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   circuit: null,
@@ -176,20 +186,16 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         return state;
       }
 
-      const source = state.wiring.source;
-      const midX = (source.pinId && source.deviceId ? 0 : 0);
+      const start = state.wiring.tempWaypoints[0];
+      if (!start) return state;
 
+      const path = calculateOrthogonalPath(start, position);
+      
       return {
         wiring: {
           ...state.wiring,
           tempPosition: position,
-          tempWaypoints: [
-            ...state.wiring.tempWaypoints.slice(0, -1),
-            ...calculateOrthogonalPath(
-              state.wiring.tempWaypoints[state.wiring.tempWaypoints.length - 1],
-              position
-            )
-          ]
+          tempWaypoints: path
         }
       };
     }),
@@ -202,24 +208,13 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     })),
 
-  finishWiring: () => {
-    const state = get();
-    if (!state.wiring.active || !state.wiring.source) {
-      return null;
-    }
-
-    const source = state.wiring.source;
-    const tempPosition = state.wiring.tempPosition;
-
+  finishWiring: () =>
     set({
       wiring: {
         active: false,
         tempWaypoints: []
       }
-    });
-
-    return { source };
-  },
+    }),
 
   cancelWiring: () =>
     set({
@@ -246,12 +241,3 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   undo: () => get().undoRedoManager?.undo(),
   redo: () => get().undoRedoManager?.redo()
 }));
-
-function calculateOrthogonalPath(start: Point, end: Point): Point[] {
-  const midX = (start.x + end.x) / 2;
-  return [
-    { x: midX, y: start.y },
-    { x: midX, y: end.y },
-    { ...end }
-  ];
-}

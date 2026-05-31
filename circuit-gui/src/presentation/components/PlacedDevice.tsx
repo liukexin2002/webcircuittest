@@ -116,8 +116,8 @@ export function PlacedDevice({
             devicePosition={device.position}
             isHighlighted={isHighlighted}
             isConnected={false}
-            onMouseDown={(devId, pinId) => onPinMouseDown?.(devId, pinId, getPinPosition(pin))}
-            onMouseOver={(devId, pinId) => onPinMouseOver?.(devId, pinId)}
+            onMouseDown={(devId, pinId, pos) => onPinMouseDown?.(device.id, pinId, pos)}
+            onMouseOver={(devId, pinId) => onPinMouseOver?.(device.id, pinId)}
             onMouseOut={() => onPinMouseOut?.()}
           />
         );

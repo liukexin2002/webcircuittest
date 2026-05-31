@@ -32,7 +32,6 @@ export function Pin({
   };
 
   const pinRadius = 4;
-  const hoverRadius = 8;
 
   const getPinColor = () => {
     if (isHighlighted) return '#3b82f6';
@@ -40,30 +39,13 @@ export function Pin({
     return '#6b7280';
   };
 
-  const getPinLine = () => {
-    const length = pin.length ?? 10;
-    const { x, y } = absolutePosition;
-    
-    switch (pin.direction) {
-      case PinDirection.West:
-        return `M${x - length},${y} L${x},${y}`;
-      case PinDirection.East:
-        return `M${x},${y} L${x + length},${y}`;
-      case PinDirection.North:
-        return `M${x},${y - length} L${x},${y}`;
-      case PinDirection.South:
-        return `M${x},${y} L${x},${y + length}`;
-      default:
-        return '';
-    }
-  };
-
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     onMouseDown('device', pin.id, absolutePosition);
   };
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onMouseOver('device', pin.id);
   };
 
@@ -81,7 +63,7 @@ export function Pin({
       <circle
         cx={absolutePosition.x}
         cy={absolutePosition.y}
-        r={hoverRadius}
+        r={12}
         fill="transparent"
       />
       
