@@ -75,9 +75,9 @@ export function PlacedDevice({
       <g dangerouslySetInnerHTML={{ __html: symbol.svg }} />
 
       <text
-        y={symbol.height / 2 + 18}
+        y={symbol.height / 2 + 14}
         textAnchor="middle"
-        fontSize={12}
+        fontSize={11}
         fontFamily="Arial, sans-serif"
         fill="#444444"
         fontWeight="500"
