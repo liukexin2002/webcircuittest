@@ -13,8 +13,8 @@ interface PinProps {
   symbolHeight: number;
   isHighlighted: boolean;
   isConnected: boolean;
-  onMouseDown: (deviceId: string, pinId: string, position: Point) => void;
-  onMouseOver: (deviceId: string, pinId: string) => void;
+  onMouseDown: () => void;
+  onMouseOver: () => void;
   onMouseOut: () => void;
 }
 
@@ -28,11 +28,6 @@ export function Pin({
   onMouseOver,
   onMouseOut
 }: PinProps) {
-  const absolutePosition: Point = {
-    x: pin.position.x,
-    y: pin.position.y
-  };
-
   const pinRadius = 4;
 
   const getPinColor = () => {
@@ -43,12 +38,12 @@ export function Pin({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onMouseDown('device', pin.id, absolutePosition);
+    onMouseDown();
   };
 
   const handleMouseEnter = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onMouseOver('device', pin.id);
+    onMouseOver();
   };
 
   const handleMouseLeave = () => {
@@ -60,15 +55,15 @@ export function Pin({
   const getLineEnd = () => {
     switch (pin.direction) {
       case PinDirection.West:
-        return { x: absolutePosition.x - PIN_INDICATOR_LENGTH, y: absolutePosition.y };
+        return { x: pin.position.x - PIN_INDICATOR_LENGTH, y: pin.position.y };
       case PinDirection.East:
-        return { x: absolutePosition.x + PIN_INDICATOR_LENGTH, y: absolutePosition.y };
+        return { x: pin.position.x + PIN_INDICATOR_LENGTH, y: pin.position.y };
       case PinDirection.North:
-        return { x: absolutePosition.x, y: absolutePosition.y - PIN_INDICATOR_LENGTH };
+        return { x: pin.position.x, y: pin.position.y - PIN_INDICATOR_LENGTH };
       case PinDirection.South:
-        return { x: absolutePosition.x, y: absolutePosition.y + PIN_INDICATOR_LENGTH };
+        return { x: pin.position.x, y: pin.position.y + PIN_INDICATOR_LENGTH };
       default:
-        return absolutePosition;
+        return pin.position;
     }
   };
 
@@ -82,8 +77,8 @@ export function Pin({
       style={{ cursor: 'crosshair' }}
     >
       <circle
-        cx={absolutePosition.x}
-        cy={absolutePosition.y}
+        cx={pin.position.x}
+        cy={pin.position.y}
         r={12}
         fill="transparent"
       />
@@ -91,16 +86,16 @@ export function Pin({
       <line
         x1={lineEnd.x}
         y1={lineEnd.y}
-        x2={absolutePosition.x}
-        y2={absolutePosition.y}
+        x2={pin.position.x}
+        y2={pin.position.y}
         stroke={getPinColor()}
         strokeWidth={1.5}
         strokeLinecap="round"
       />
       
       <circle
-        cx={absolutePosition.x}
-        cy={absolutePosition.y}
+        cx={pin.position.x}
+        cy={pin.position.y}
         r={isHighlighted ? pinRadius * 1.3 : pinRadius}
         fill={getPinColor()}
         stroke="white"

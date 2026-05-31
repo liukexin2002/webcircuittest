@@ -102,6 +102,11 @@ export function PlacedDevice({
         const isHighlighted = highlightedPin?.deviceId === device.id && 
                               highlightedPin?.pinId === pin.id;
         
+        const globalPosition = {
+          x: device.position.x + pin.position.x,
+          y: device.position.y + pin.position.y
+        };
+        
         return (
           <Pin
             key={pin.id}
@@ -110,8 +115,8 @@ export function PlacedDevice({
             symbolHeight={symbol.height}
             isHighlighted={isHighlighted}
             isConnected={false}
-            onMouseDown={(_, pinId, pos) => onPinMouseDown?.(device.id, pinId, pos)}
-            onMouseOver={(_, pinId) => onPinMouseOver?.(device.id, pinId)}
+            onMouseDown={() => onPinMouseDown?.(device.id, pin.id, globalPosition)}
+            onMouseOver={() => onPinMouseOver?.(device.id, pin.id)}
             onMouseOut={() => onPinMouseOut?.()}
           />
         );
